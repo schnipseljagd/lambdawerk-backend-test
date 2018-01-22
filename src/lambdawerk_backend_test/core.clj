@@ -86,17 +86,19 @@
                          :database-name     "postgres"
                          :server-name       "localhost"})
 
+(def insert-or-update-persons-table-query
+  "insert into person (fname,lname,dob) values (?, ?, ?) on conflict (fname,lname,dob) do update set phone = ? where person.phone != ?")
+
 (defn insert-or-update-persons-table [datasource persons]
   (j/with-db-transaction
     [t-con {:datasource datasource}]
-    (doseq [{:keys [firstname lastname phone date-of-birth]} persons]
-      (j/execute! t-con
-                  ["insert into person (fname,lname,dob) values (?, ?, ?) on conflict (fname,lname,dob) do update set phone = ? where person.phone != ?"
-                   firstname
-                   lastname
-                   date-of-birth
-                   (str phone)
-                   (str phone)])))
+    (j/execute! t-con
+                (into
+                  [insert-or-update-persons-table-query]
+                  (map (fn [{:keys [firstname lastname phone date-of-birth]}]
+                         [firstname lastname date-of-birth (str phone) (str phone)])
+                       persons))
+                {:multi? true}))
 
   (prn "insert: " (swap! insert-counter inc)))
 

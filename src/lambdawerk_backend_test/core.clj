@@ -82,15 +82,13 @@
   "insert into person (fname,lname,dob) values (?, ?, ?) on conflict (fname,lname,dob) do update set phone = ? where person.phone != ?")
 
 (defn insert-or-update-persons-table [datasource persons]
-  (j/with-db-transaction
-    [t-con {:datasource datasource}]
-    (j/execute! t-con
-                (into
-                  [insert-or-update-persons-table-query]
-                  (map (fn [{:keys [firstname lastname phone date-of-birth]}]
-                         [firstname lastname date-of-birth (str phone) (str phone)])
-                       persons))
-                {:multi? true}))
+  (j/execute! {:datasource datasource}
+              (into
+                [insert-or-update-persons-table-query]
+                (map (fn [{:keys [firstname lastname phone date-of-birth]}]
+                       [firstname lastname date-of-birth (str phone) (str phone)])
+                     persons))
+              {:multi? true})
 
   (prn "insert: " (swap! insert-counter inc)))
 

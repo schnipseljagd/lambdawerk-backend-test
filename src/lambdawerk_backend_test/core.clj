@@ -76,16 +76,6 @@
                    (fn [in] (prn in))
                    4))
 
-(def datasource-options {:auto-commit       false
-                         :minimum-idle      1
-                         :maximum-pool-size 10
-                         :pool-name         "db-pool"
-                         :adapter           "postgresql"
-                         :username          "postgres"
-                         :password          "password"
-                         :database-name     "postgres"
-                         :server-name       "localhost"})
-
 (def insert-or-update-persons-table-query
   "insert into person (fname,lname,dob) values (?, ?, ?) on conflict (fname,lname,dob) do update set phone = ? where person.phone != ?")
 

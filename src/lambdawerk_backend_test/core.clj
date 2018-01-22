@@ -64,12 +64,14 @@
 (defn run-in-parallel [data function number-of-executors]
   (let [service (Executors/newFixedThreadPool number-of-executors)
         submit (fn [function data] (.submit ^ExecutorService service
-                                            ^Callable (fn [] (function data))))]
-    (->> data
-         (map (partial submit function))
-         (doall)
-         (map deref)
-         (doall))))
+                                            ^Callable (fn [] (function data))))
+        result (->> data
+                    (map (partial submit function))
+                    (doall)
+                    (map deref)
+                    (doall))]
+    (.shutdown service)
+    result))
 
 (comment
   (run-in-parallel [1 2 3 4 5 6 7 8 9 10]

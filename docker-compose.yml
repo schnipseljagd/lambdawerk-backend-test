@@ -1,0 +1,23 @@
+version: '3'
+services:
+  postgres:
+    network_mode: "host"
+    image: "postgres"
+    volumes:
+      - "./local-setup/postgres.conf:/etc/postgresql/postgresql.conf"
+      - "./local-setup/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh"
+      - "./local-setup/person.sql.gz:/tmp/person.sql.gz"
+    environment:
+      - POSTGRES_PASSWORD=password
+
+  postgres_exporter:
+    network_mode: "host"
+    image: "wrouesnel/postgres_exporter"
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:password@localhost:5432/?sslmode=disable
+
+  prometheus:
+    network_mode: "host"
+    image: prom/prometheus
+    volumes:
+      - "./local-setup/prometheus.yml:/etc/prometheus/prometheus.yml"

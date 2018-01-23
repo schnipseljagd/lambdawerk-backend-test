@@ -9,7 +9,7 @@ pom.xml.asc
 /.nrepl-port
 .hgignore
 .hg/
-/person.sql.gz
-/update-file.xml.gz
 /.idea/
 /lambdawerk-backend-test.iml
+/local-setup/person.sql.gz
+/local-setup/update-file.xml.gz

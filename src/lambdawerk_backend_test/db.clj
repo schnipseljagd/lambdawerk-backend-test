@@ -1,7 +1,8 @@
 (ns lambdawerk-backend-test.db
   (:require [hikari-cp.core :refer [make-datasource close-datasource]]
             [clojure.java.jdbc :as j]
-            [util.async :as async]))
+            [util.async :as async]
+            [clj-time.jdbc]))
 
 (def insert-counter (atom nil))
 

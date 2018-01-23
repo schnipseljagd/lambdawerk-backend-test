@@ -93,8 +93,6 @@
 (s/check-asserts true)
 
 (comment
-  (j/query pg-db "select * from person limit 10")
-  (j/execute! pg-db "ALTER TABLE person ADD UNIQUE (fname,lname,dob)")
   ;(with-open [reader (io/reader "update-file.xml")]
   (time (-> (io/reader "update-file.xml")
             (xml->persons)

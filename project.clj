@@ -7,7 +7,9 @@
                  [org.clojure/data.xml "0.0.8"]
                  [org.clojure/java.jdbc "0.7.5"]
                  [org.postgresql/postgresql "42.2.0"]
-                 [hikari-cp "2.0.1"]]
+                 [hikari-cp "2.0.1"]
+                 [clj-time "0.14.2"]
+                 [com.velisco/strgen "0.1.5"]]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]
                                   [org.clojure/test.check "0.9.0"]]

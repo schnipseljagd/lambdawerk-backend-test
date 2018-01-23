@@ -1,19 +1,25 @@
 (ns lambdawerk-backend-test.core
   (:require [clojure.java.io :as io]
-            [clojure.instant :refer [read-instant-timestamp]]
             [clojure.spec.alpha :as s]
             [clojure.string :refer [blank?]]
             [clojure.spec.test.alpha :as stest]
             [lambdawerk-backend-test.xml-reader :as xml]
             [clojure.java.jdbc :as j]
-            [hikari-cp.core :refer [make-datasource close-datasource]])
+            [hikari-cp.core :refer [make-datasource close-datasource]]
+            [miner.strgen :as sg]
+            [util.date :refer [parse-date]]
+            [clj-time.jdbc])
   (:import (java.io Reader)
            (java.util.concurrent Executors ExecutorService)))
 
 (s/def ::firstname (s/and string? (complement blank?)))
 (s/def ::lastname (s/and string? (complement blank?)))
-(s/def ::phone (s/int-in 1000000000 10000000000))
-(s/def ::date-of-birth (s/nilable inst?))
+
+(def phone-regex #"^[0-9]{10}$")
+(s/def ::phone (s/spec (s/and string? #(re-matches phone-regex %))
+                       :gen #(sg/string-generator phone-regex)))
+
+(s/def ::date-of-birth (s/nilable :clj-time.spec/date-time))
 
 (s/def ::person (s/keys :req-un [::firstname ::lastname ::phone ::date-of-birth]))
 
@@ -30,34 +36,18 @@
 ; Should it be configurable how much load the update task generates on the production database?
 ; What is more important a fast import or being a good neighbour on the production database (if there are other clients)?
 
-(def broken-dates (atom {}))
+(defn clean-person [person]
+  (update person :date-of-birth parse-date))
 
-(defn parse-date-of-birth [s]
-  (try
-    (read-instant-timestamp s)
-    (catch RuntimeException e
-      (swap! broken-dates update s (fnil inc 0))
-      nil)))
-
-(defn parse-int [s]
-  (try
-    (Long/parseLong s)
-    (catch RuntimeException e)))
-
-(defn ->person [{:keys [date-of-birth] :as member}]
-  (-> member
-      (update :date-of-birth parse-date-of-birth)
-      (update :phone parse-int)))
-
-(defn validate-person [member]
-  (s/assert ::person member)
-  member)
+(defn validate-person [person]
+  (s/assert ::person person)
+  person)
 
 (defn xml->persons [^Reader reader]
   (-> reader
       (xml/parse)
       (xml/get-members)
-      (->> (pmap (comp validate-person ->person xml/member->map)))))
+      (->> (pmap (comp validate-person clean-person xml/member->map)))))
 
 (def insert-counter (atom 0))
 
@@ -82,15 +72,14 @@
   "insert into person (fname,lname,dob) values (?, ?, ?) on conflict (fname,lname,dob) do update set phone = ? where person.phone != ?")
 
 (defn insert-or-update-persons-table [datasource persons]
-  (j/execute! {:datasource datasource}
-              (into
-                [insert-or-update-persons-table-query]
-                (map (fn [{:keys [firstname lastname phone date-of-birth]}]
-                       [firstname lastname date-of-birth (str phone) (str phone)])
-                     persons))
-              {:multi? true})
-
-  (prn "insert: " (swap! insert-counter inc)))
+  (let [result (j/execute! {:datasource datasource}
+                           (into
+                             [insert-or-update-persons-table-query]
+                             (map (fn [{:keys [firstname lastname phone date-of-birth]}]
+                                    [firstname lastname date-of-birth (str phone) (str phone)])
+                                  persons))
+                           {:multi? true})]
+    (prn "insert " (swap! insert-counter inc) " " result)))
 
 (defn update-persons-table [persons
                             {:keys [transaction-chunk-size number-of-executors]}

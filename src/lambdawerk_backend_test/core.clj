@@ -4,15 +4,11 @@
             [clojure.string :refer [blank?]]
             [clojure.spec.test.alpha :as stest]
             [lambdawerk-backend-test.xml-reader :as xml]
-            [clojure.java.jdbc :as j]
-            [hikari-cp.core :refer [make-datasource close-datasource]]
             [miner.strgen :as sg]
             [util.date :refer [parse-date]]
-            [clj-time.jdbc]
             [util.async :as async]
             [lambdawerk-backend-test.db :as db])
-  (:import (java.io Reader)
-           (java.util.concurrent Executors ExecutorService)))
+  (:import (java.io Reader)))
 
 (s/def ::firstname (s/and string? (complement blank?)))
 (s/def ::lastname (s/and string? (complement blank?)))

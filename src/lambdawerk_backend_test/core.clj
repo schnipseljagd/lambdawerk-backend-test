@@ -60,7 +60,7 @@
                            (into
                              [insert-or-update-persons-table-query]
                              (map (fn [{:keys [firstname lastname phone date-of-birth]}]
-                                    [firstname lastname date-of-birth (str phone) (str phone)])
+                                    [firstname lastname date-of-birth phone phone])
                                   persons))
                            {:multi? true})]
     (prn "insert " (swap! insert-counter inc) " " result)))

@@ -8,7 +8,8 @@
             [hikari-cp.core :refer [make-datasource close-datasource]]
             [miner.strgen :as sg]
             [util.date :refer [parse-date]]
-            [clj-time.jdbc])
+            [clj-time.jdbc]
+            [util.async :as async])
   (:import (java.io Reader)
            (java.util.concurrent Executors ExecutorService)))
 
@@ -51,23 +52,6 @@
 
 (def insert-counter (atom 0))
 
-(defn run-in-parallel [data function number-of-executors]
-  (let [service (Executors/newFixedThreadPool number-of-executors)
-        submit (fn [function data] (.submit ^ExecutorService service
-                                            ^Callable (fn [] (function data))))
-        result (->> data
-                    (map (partial submit function))
-                    (doall)
-                    (map deref)
-                    (doall))]
-    (.shutdown service)
-    result))
-
-(comment
-  (run-in-parallel [1 2 3 4 5 6 7 8 9 10]
-                   (fn [in] (prn in))
-                   4))
-
 (def insert-or-update-persons-table-query
   "insert into person (fname,lname,dob) values (?, ?, ?) on conflict (fname,lname,dob) do update set phone = ? where person.phone != ?")
 
@@ -86,8 +70,8 @@
                             datasource-options]
   (let [datasource (make-datasource datasource-options)]
     (-> (partition transaction-chunk-size persons)
-        (run-in-parallel (partial insert-or-update-persons-table datasource)
-                         number-of-executors))
+        (async/run-in-parallel (partial insert-or-update-persons-table datasource)
+                               number-of-executors))
     (close-datasource datasource)))
 
 (s/check-asserts true)

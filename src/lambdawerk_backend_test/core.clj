@@ -45,7 +45,7 @@
   (-> reader
       (xml/parse)
       (xml/get-members)
-      (->> (pmap (comp validate-person clean-person xml/member->map)))))
+      (->> (map (comp validate-person clean-person xml/member->map)))))
 
 (s/check-asserts true)
 

@@ -9,7 +9,8 @@
             [miner.strgen :as sg]
             [util.date :refer [parse-date]]
             [clj-time.jdbc]
-            [util.async :as async])
+            [util.async :as async]
+            [lambdawerk-backend-test.db :as db])
   (:import (java.io Reader)
            (java.util.concurrent Executors ExecutorService)))
 
@@ -50,44 +51,20 @@
       (xml/get-members)
       (->> (pmap (comp validate-person clean-person xml/member->map)))))
 
-(def insert-counter (atom 0))
-
-(def insert-or-update-persons-table-query
-  "insert into person (fname,lname,dob) values (?, ?, ?) on conflict (fname,lname,dob) do update set phone = ? where person.phone != ?")
-
-(defn insert-or-update-persons-table [datasource persons]
-  (let [result (j/execute! {:datasource datasource}
-                           (into
-                             [insert-or-update-persons-table-query]
-                             (map (fn [{:keys [firstname lastname phone date-of-birth]}]
-                                    [firstname lastname date-of-birth phone phone])
-                                  persons))
-                           {:multi? true})]
-    (prn "insert " (swap! insert-counter inc) " " result)))
-
-(defn update-persons-table [persons
-                            {:keys [transaction-chunk-size number-of-executors]}
-                            datasource-options]
-  (let [datasource (make-datasource datasource-options)]
-    (-> (partition transaction-chunk-size persons)
-        (async/run-in-parallel (partial insert-or-update-persons-table datasource)
-                               number-of-executors))
-    (close-datasource datasource)))
-
 (s/check-asserts true)
 
 (comment
   ;(with-open [reader (io/reader "update-file.xml")]
   (time (-> (io/reader "update-file.xml")
             (xml->persons)
-            (update-persons-table {:transaction-chunk-size 10000
-                                   :number-of-executors    4}
-                                  {:minimum-idle      1
-                                   :maximum-pool-size 10
-                                   :pool-name         "db-pool"
-                                   :adapter           "postgresql"
-                                   :username          "postgres"
-                                   :password          "password"
-                                   :database-name     "postgres"
-                                   :server-name       "localhost"}))))
+            (db/update-persons-table {:transaction-chunk-size 10000
+                                      :number-of-executors    4}
+                                     {:minimum-idle      1
+                                      :maximum-pool-size 10
+                                      :pool-name         "db-pool"
+                                      :adapter           "postgresql"
+                                      :username          "postgres"
+                                      :password          "password"
+                                      :database-name     "postgres"
+                                      :server-name       "localhost"}))))
 

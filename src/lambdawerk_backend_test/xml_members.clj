@@ -1,11 +1,8 @@
-(ns lambdawerk-backend-test.xml-reader
+(ns lambdawerk-backend-test.xml-members
   (:require [clojure.data.xml :as xml])
   (:import (clojure.data.xml Element)))
 
-(defn parse [source]
-  (xml/parse source))
-
-(defn get-members [^Element {:keys [tag content]}]
+(defn get-all [^Element {:keys [tag content]}]
   {:pre [(= :members tag)]}
   content)
 

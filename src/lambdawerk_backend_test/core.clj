@@ -3,12 +3,17 @@
             [clojure.spec.alpha :as s]
             [clojure.string :refer [blank?]]
             [clojure.spec.test.alpha :as stest]
-            [lambdawerk-backend-test.xml-reader :as xml]
+            [lambdawerk-backend-test.xml-members :as members]
             [miner.strgen :as sg]
             [util.date :refer [parse-date]]
             [util.async :as async]
-            [lambdawerk-backend-test.db :as db])
+            [lambdawerk-backend-test.db :as db]
+            [clojure.data.xml :as xml]
+            [clj-time.spec]
+            [clj-time.jdbc])
   (:import (java.io Reader)))
+
+(s/check-asserts true)
 
 (s/def ::firstname (s/and string? (complement blank?)))
 (s/def ::lastname (s/and string? (complement blank?)))
@@ -23,7 +28,7 @@
 
 (comment
   (s/exercise ::person)
-  (stest/check `do-something))
+  (stest/check `validate-person))
 
 
 ; ALTER TABLE person ADD UNIQUE (fname,lname,dob);
@@ -44,10 +49,8 @@
 (defn xml->persons [^Reader reader]
   (-> reader
       (xml/parse)
-      (xml/get-members)
-      (->> (map (comp validate-person clean-person xml/member->map)))))
-
-(s/check-asserts true)
+      (members/get-all)
+      (->> (map (comp validate-person clean-person members/member->map)))))
 
 (comment
   ;(with-open [reader (io/reader "update-file.xml")]

@@ -34,7 +34,9 @@
   (s/assert ::person person)
   person)
 
-(defn xml->persons [^Reader reader]
+(defn xml->persons
+  "Reads the XML member list and transforms it into a person map list."
+  [^Reader reader]
   (-> reader
       (xml/parse)
       (members/get-all)

@@ -35,14 +35,13 @@
   [datasource persons]
   (let [statement (insert-or-update-persons-statement persons)
         result (j/execute! {:datasource datasource} statement)]
-    (prn result)
     datasource))
 
 (defn update-persons-table [persons
-                            {:keys [transaction-chunk-size number-of-executors]}
+                            {:keys [batch-size number-of-executors]}
                             datasource-options]
   (let [datasource (make-datasource datasource-options)]
-    (-> (partition transaction-chunk-size persons)
+    (-> (partition batch-size persons)
         (async/run-in-parallel (partial insert-or-update-persons-table datasource)
                                number-of-executors))
     (close-datasource datasource)))

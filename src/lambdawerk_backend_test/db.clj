@@ -7,7 +7,7 @@
 (def insert-counter (atom nil))
 
 (def insert-or-update-persons-table-query
-  "insert into person (fname,lname,dob) values (?, ?, ?) on conflict (fname,lname,dob) do update set phone = ? where person.phone != ?")
+  "insert into person (fname,lname,dob, phone) values (?, ?, ?, ?) on conflict (fname,lname,dob) do update set phone = ? where person.phone != ?")
 
 (defn insert-or-update-persons-table [datasource persons]
   (let [result (j/execute! {:datasource datasource}
@@ -20,6 +20,7 @@
                                     [firstname
                                      lastname
                                      date-of-birth
+                                     phone
                                      phone
                                      phone])
                                   persons))

@@ -44,7 +44,7 @@
                             {:keys [batch-size number-of-executors]}
                             datasource-options]
   (let [datasource (make-datasource datasource-options)
-        results (-> (partition batch-size persons)
+        results (-> (partition-all batch-size persons)
                     (async/run-in-parallel (partial insert-or-update-persons-table datasource)
                                            number-of-executors))]
     (close-datasource datasource)

@@ -28,6 +28,10 @@ Or build an uberjar and run the update process with the default settings.
 
     lein uberjar
 
+To shutdown the stack.
+
+    docker-compose kill && docker-compose rm -f
+
 ## Open questions and tasks for production use
 
  - Are there other clients running writes/reads on the database in production?

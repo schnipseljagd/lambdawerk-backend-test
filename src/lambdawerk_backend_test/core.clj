@@ -2,7 +2,26 @@
   (:gen-class)
   (:require [clojure.java.io :as io]
             [lambdawerk-backend-test.service :refer [xml->persons]]
-            [lambdawerk-backend-test.db :as db]))
+            [lambdawerk-backend-test.db :as db]
+            [com.stuartsierra.frequencies :as freq]
+            [util.measure :refer [take-time]]
+            [clojure.pprint :refer [pprint]]))
+
+(defn stats
+  "All latencies are in msecs."
+  [[overall-latency results]]
+  (let [stats (->> results
+                   (map first)
+                   (frequencies)
+                   (freq/stats))
+        number-of-updates (->> results
+                               (map second)
+                               (reduce +))]
+    {:overall-latency           overall-latency
+     :batch-write-latency-stats stats
+     :number-of-updates         number-of-updates}))
+
+
 
 (defn run-persons-update []
   (with-open [reader (io/reader "local-setup/update-file.xml")]
@@ -20,8 +39,13 @@
                                   :database-name     "postgres"
                                   :server-name       "localhost"}))))
 
+(defn run []
+  (stats
+    (take-time
+      (run-persons-update))))
+
 (comment
-  (time (run-persons-update)))
+  (run))
 
 (defn -main []
-  (time (run-persons-update)))
+  (pprint (run)))

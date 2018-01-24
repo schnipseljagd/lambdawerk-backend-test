@@ -37,8 +37,8 @@
   [datasource persons]
   (take-time
     (let [statement (insert-or-update-persons-statement persons)]
-        (first
-          (j/execute! {:datasource datasource} statement)))))
+      (first
+        (j/execute! {:datasource datasource} statement)))))
 
 (defn update-persons-table [persons
                             {:keys [batch-size number-of-executors]}

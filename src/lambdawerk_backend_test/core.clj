@@ -11,18 +11,21 @@
 ; Should it be configurable how much load the update task generates on the production database?
 ; What is more important a fast import or being a good neighbour on the production database (if there are other clients)?
 
-(comment
-  ;(with-open [reader (io/reader "update-file.xml")]
-  (time (-> (io/reader "update-file.xml")
-            (xml->persons)
-            (db/update-persons-table {:transaction-chunk-size 10000
-                                      :number-of-executors    4}
-                                     {:minimum-idle      1
-                                      :maximum-pool-size 10
-                                      :pool-name         "db-pool"
-                                      :adapter           "postgresql"
-                                      :username          "postgres"
-                                      :password          "password"
-                                      :database-name     "postgres"
-                                      :server-name       "localhost"}))))
+(defn run-persons-update []
+  (with-open [reader (io/reader "local-setup/update-file.xml")]
+    (-> reader
+        (xml->persons)
+        (->> (take 10000))
+        (db/update-persons-table {:transaction-chunk-size 10000
+                                  :number-of-executors    4}
+                                 {:minimum-idle      1
+                                  :maximum-pool-size 10
+                                  :pool-name         "db-pool"
+                                  :adapter           "postgresql"
+                                  :username          "postgres"
+                                  :password          "password"
+                                  :database-name     "postgres"
+                                  :server-name       "localhost"}))))
 
+(comment
+  (time (run-persons-update)))

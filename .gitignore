@@ -12,4 +12,4 @@ pom.xml.asc
 /.idea/
 /lambdawerk-backend-test.iml
 /local-setup/person.sql.gz
-/local-setup/update-file.xml.gz
+/local-setup/update-file.xml*

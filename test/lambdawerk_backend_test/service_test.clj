@@ -1,11 +1,10 @@
 (ns lambdawerk-backend-test.service-test
   (:require [clojure.test :refer :all]
             [lambdawerk-backend-test.service :refer :all]
-            [clojure.java.io :as io]
-            [util.date :refer [parse-date]])
+            [clojure.java.io :as io])
   (:import (clojure.lang ExceptionInfo)))
 
-(def example-xml "<members><member><firstname>00226501</firstname><lastname>MCGREWJR</lastname><date-of-birth>1936-02-01</date-of-birth><phone>9796740198</phone></member><member><firstname>00226501</firstname><lastname>SCHENERLEIN</lastname><date-of-birth>1935-12-10</date-of-birth><phone>5709742596</phone></member></members>")
+(def example-xml "<members><member><firstname>00226501</firstname><lastname>MCGREWJR</lastname><date-of-birth>1936-02-01</date-of-birth><phone>9796740198</phone></member><member><firstname>00226501</firstname><lastname>SCHENERLEIN</lastname><date-of-birth>\\N</date-of-birth><phone>5709742596</phone></member></members>")
 (def invalid-member-xml "<members><member><firstname>00226501</firstname><lastname>MCGREWJR</lastname><date-of-birth>1936-02-01</date-of-birth><phone>broken</phone></member></members>")
 
 (defn str->input-stream [^String s]
@@ -24,11 +23,11 @@
     (are [n person] (= (nth persons n) person)
                     0 {:firstname     "00226501"
                        :lastname      "MCGREWJR"
-                       :date-of-birth (parse-date "1936-02-01")
+                       :date-of-birth "1936-02-01"
                        :phone         "9796740198"}
                     1 {:firstname     "00226501"
                        :lastname      "SCHENERLEIN"
-                       :date-of-birth (parse-date "1935-12-10")
+                       :date-of-birth ""
                        :phone         "5709742596"})))
 
 (deftest xml->persons-validates-persons

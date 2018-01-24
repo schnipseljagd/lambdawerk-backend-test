@@ -3,7 +3,6 @@
             [clojure.java.jdbc :as j]
             [util.async :as async]
             [util.measure :refer [take-time]]
-            [clj-time.jdbc]
             [honeysql.core :as sql]
             [honeysql.helpers :refer [insert-into values where]]
             [honeysql-postgres.format]

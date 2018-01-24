@@ -1,7 +1,6 @@
 (ns lambdawerk-backend-test.db-test
   (:require [clojure.test :refer :all]
-            [lambdawerk-backend-test.db :refer :all]
-            [util.date :refer [parse-date]]))
+            [lambdawerk-backend-test.db :refer :all]))
 
 (def simple-statement
   "INSERT INTO person (phone, fname, lname, dob) VALUES (?, ?, ?, ?) ON CONFLICT (fname, lname, dob) DO UPDATE SET phone = EXCLUDED.phone WHERE person.phone <> EXCLUDED.phone")
@@ -15,7 +14,7 @@
 (defn make-example-person []
   {:firstname     "foo"
    :lastname      "bar"
-   :date-of-birth (parse-date "1987-11-29")
+   :date-of-birth "1987-11-29"
    :phone         "123456789"})
 
 (deftest generates-simple-statement

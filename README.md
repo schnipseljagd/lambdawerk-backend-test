@@ -57,7 +57,12 @@ To achieve this the db writes are batched and executed in parallel.
 Both the batch size and the the number of executors can be configured.
 A db connection pool is used to allow multiple database connections which can be adjusted as well.
 
-The actual merge is done in one SQL statement which the author saw as the most efficient and simplest way to to the merge.
+The actual merge is done in one SQL statement which provides an efficient and simple way to do the merge.
+
+Additionally a primary key is created on the [person table](local-setup/init-db.sh) to allow the merge to work efficiently and as expected.
+To create the primary key the date column type is altered to varchar since the data contains blank dates and we can use empty strings now.
+To allow the postgres update on-conflict work correctly we need a unique index without null values since postgres doesn't equals two null values as true.
+Maybe the author missed here another possibility to get on-conflict to work correctly with null values.
 
 ### Additional fields should be easy to add
 

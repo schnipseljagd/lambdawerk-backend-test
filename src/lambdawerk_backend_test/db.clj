@@ -35,6 +35,7 @@
   [datasource persons]
   (let [statement (insert-or-update-persons-statement persons)
         result (j/execute! {:datasource datasource} statement)]
+    (prn result)
     datasource))
 
 (defn update-persons-table [persons

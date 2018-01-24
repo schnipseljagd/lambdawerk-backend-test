@@ -13,6 +13,9 @@
                  [honeysql "0.9.1"]
                  [nilenso/honeysql-postgres "0.2.3"]]
 
-  :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]
-                                  [org.clojure/test.check "0.9.0"]]
-                   :source-paths ["dev"]}})
+  :profiles {:dev     {:dependencies [[org.clojure/tools.namespace "0.2.11"]
+                                      [org.clojure/test.check "0.9.0"]]
+                       :source-paths ["dev"]}
+             :uberjar {:aot          :all
+                       :jvm-opts     ["-Dclojure.compiler.direct-linking=true"]
+                       :main         lambdawerk-backend-test.core}})

@@ -9,7 +9,9 @@
                  [org.postgresql/postgresql "42.2.0"]
                  [hikari-cp "2.0.1"]
                  [clj-time "0.14.2"]
-                 [com.velisco/strgen "0.1.5"]]
+                 [com.velisco/strgen "0.1.5"]
+                 [honeysql "0.9.1"]
+                 [nilenso/honeysql-postgres "0.2.3"]]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]
                                   [org.clojure/test.check "0.9.0"]]

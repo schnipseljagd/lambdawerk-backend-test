@@ -21,6 +21,7 @@ To start the update process, you can either open `lambdawerk-backend-test.core` 
 Or build an uberjar and run the update process with the default settings.
 
     lein uberjar
+    java -jar target/lambdawerk-backend-test-0.1.0-SNAPSHOT-standalone.jar
 
 To shutdown the stack.
 

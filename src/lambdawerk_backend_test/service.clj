@@ -25,12 +25,10 @@
 (comment
   (s/exercise ::person))
 
-(defn clean-date-of-birth [dob]
-  (try
-    (clojure.instant/read-instant-date dob)
+(defn- clean-date-of-birth [dob]
+  (if (re-matches date-of-birth-regex dob)
     dob
-    (catch RuntimeException e
-      "")))
+    ""))
 
 (defn- clean-person [person]
   (update person :date-of-birth clean-date-of-birth))

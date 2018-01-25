@@ -11,33 +11,35 @@
   "All latencies are in msecs."
   [[overall-latency results]]
   (let [stats (->> results
-                   (map first)
+                   (db/batch-execution-latencies)
                    (frequencies)
                    (freq/stats))
         number-of-updates (->> results
-                               (map second)
+                               (db/batch-execution-results)
                                (reduce +))]
     {:overall-latency           overall-latency
      :batch-write-latency-stats stats
      :number-of-updates         number-of-updates}))
 
-
+(def datasource-options
+  {:minimum-idle      1
+   :maximum-pool-size 10
+   :pool-name         "db-pool"
+   :adapter           "postgresql"
+   :username          "postgres"
+   :password          "password"
+   :database-name     "postgres"
+   :server-name       "localhost"})
 
 (defn run-persons-update []
   (with-open [reader (io/reader "local-setup/update-file.xml")]
     (-> reader
         (xml->persons)
         ;(->> (take 10000))                                  ; to allow shorter test runs
-        (db/update-persons-table {:batch-size          1000
-                                  :number-of-executors 4}
-                                 {:minimum-idle      1
-                                  :maximum-pool-size 10
-                                  :pool-name         "db-pool"
-                                  :adapter           "postgresql"
-                                  :username          "postgres"
-                                  :password          "password"
-                                  :database-name     "postgres"
-                                  :server-name       "localhost"}))))
+        (db/batch-execute-in-parallel {:batch-size        1000
+                                       :number-of-executors 4}
+                                      datasource-options
+                                      db/insert-or-update-persons-statement))))
 
 (defn run []
   (stats

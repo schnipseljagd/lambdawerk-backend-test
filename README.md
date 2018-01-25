@@ -1,12 +1,6 @@
 # LambdaWerk backend developer test
 
-## Setup
-
-### Tests
-
-    lein test
-
-### Development
+## Development setup
 
 Please make sure the [test data](http://exchange.lambdawerk.com.s3-website.eu-central-1.amazonaws.com/lambdawerk-backend-test.tar) is downloaded and extracted to `local-setup/`.
 
@@ -31,6 +25,12 @@ Or build an uberjar and run the update process with the default settings.
 To shutdown the stack.
 
     docker-compose kill && docker-compose rm -f
+
+## Tests
+
+Because of `lambdawerk-backend-test.db-integration-test` the tests depend on having a database.
+
+    lein test
 
 ## Open questions and tasks for production use
 

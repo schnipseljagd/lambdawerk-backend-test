@@ -4,4 +4,5 @@
   (:require
     [clojure.repl :refer (apropos dir doc find-doc pst source)]
     [clojure.test :as test]
-    [clojure.tools.namespace.repl :refer (refresh refresh-all)]))
+    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
+    [lambdawerk-backend-test.core]))
